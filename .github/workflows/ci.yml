@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      # the LLM extra is not needed: agent tests use a scripted fake backend
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: pytest -q
+      - name: BM25 retrieval benchmark on all PIAF questions (CPU, no model download)
+        run: odagent retrieval --bm25-only --out ci-reports
+      - name: Rebuild the results table from the committed agent runs
+        run: odagent report --reports reports

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "odagent"
+version = "0.1.0"
+description = "A French open-data assistant that routes between RAG over Wikipedia paragraphs (PIAF) and text-to-SQL over the 2018 museum attendance table, with three agent architectures compared on 120 gold questions using a local open-weight LLM."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "pyarrow>=14",
+  "rank-bm25>=0.2.2",
+]
+
+[project.optional-dependencies]
+llm = ["torch>=2.2", "transformers>=4.45", "accelerate>=0.30", "sentence-transformers>=3.0"]
+dev = ["pytest>=8.0", "ruff>=0.5"]
+
+[project.scripts]
+odagent = "odagent.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/odagent"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
